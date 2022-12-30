@@ -1,0 +1,41 @@
+ body{
+    font-family: "Arial", "Times New Roman",serif;
+}
+
+th, td {
+    padding:2px 8px;
+    font-size: 11px;
+}
+.underline{vertical-align:top;border-top:4px solid #000000;}
+
+table{max-width:100%;background-color:transparent;border-collapse:collapse;border-spacing:0}
+thead th{vertical-align:top;border-top:3px solid #000000; text-align:left;}
+thead th{vertical-align:bottom;border-bottom:3px solid #000000}
+
+.linha-totalizador {vertical-align:top;
+                    border:2px solid #000000; 
+                    text-align:left;}
+
+.tabela-com-div-com-borda-para-pdf{border-bottom: 2px solid #999999; margin-bottom: 10px;}
+.tabela-com-div-tr{display: block;}
+.tabela-com-div-th{display: block; float: left;}
+.tabela-com-div-conteudo{display: block; padding: 0px 8px ; font-size:12px;} 
+.descricao{font-size:11px;}
+
+.table-hover .underline{vertical-align:top;border-top:4px solid #000000;}
+.table-hover .value-negative-color{vertical-align:top;border-top:4px solid #000000;}
+table thead {text-align:right;}
+
+tbody .alinhar_direita {text-align:right;}
+thead .alinhar_direita {text-align: right;}
+tbody .traco_baixo {vertical-align:bottom;border-bottom:1px solid #000000} 
+
+tbody .alinhar_ao_topo {vertical-align:sub;}
+thead .alinhar_ao_topo {vertical-align:sub;} 
+
+.header { text-align: center;}
+table {font-size:11px;}
+
+b {font-size:14px;}
+
+h4 .destaque {font-size: 16px;}

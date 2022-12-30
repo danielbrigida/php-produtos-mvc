@@ -16,7 +16,7 @@ class ProdutoController extends Controller {
 
     public function index()
     {
-        var_dump($_GET);
-        $this->view('Produtos\view\produto\index', ['users' => 'testes']);
+        //var_dump($_GET);
+        return  $this->view('Produtos\view\produto\index', ['users' => 'testes']);
     }
 }

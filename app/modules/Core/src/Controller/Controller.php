@@ -4,8 +4,11 @@ namespace App\Core\src\Controller;
 
 class Controller
 {
-  public function view(string $view, $data = [])
+  public function view(string $view, $data = []): array
   {
-    require_once   __DIR__ .'\\..\\..\\..\\' . $view . '.php';
+    return  [
+        'layout' =>  __DIR__ .'\\..\\..\\..\\' . $view . '.php',
+        'data'=> $data,
+    ];
   }
 }
