@@ -1,0 +1,18 @@
+{
+  "require": {
+    "php": "^7.1",
+    "ext-json": "*",
+    "ext-libxml": "*",
+    "ext-mbstring": "*",
+    "ext-pdo": "*",
+    "php-curl-class/php-curl-class": "^9.5",
+    "ext-curl": "*",
+    "parsecsv/php-parsecsv": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/modules",
+      "Database\\": "app/db"
+    }
+  }
+}
