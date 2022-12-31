@@ -53,8 +53,9 @@ class DB {
     {
         $fields = array_keys($vars);
         $sql = "INSERT INTO " . $table . " (" . implode(", ", $fields) . ") VALUES (:" . implode(", :", $fields) . ");";
-        $res = db::query($sql, $vars);
-        return $res->rowCount();
+        DB::query($sql, $vars);
+        
+        return DB::getLastId($table);;
     }
 
     public static function update(string $table, array $vars, $where, array $whereBind = [])
@@ -118,6 +119,16 @@ class DB {
 
         self::query("DELETE FROM {$table} WHERE :id=id;", ['id' => $id]);
         return true;
+    }
+
+    public static function getLastId($table)
+    { 
+        $res = DB::query("SELECT id FROM {$table}
+            ORDER BY id DESC
+            LIMIT 1
+        ;");
+        $response = $res->fetch(\PDO::FETCH_ASSOC);
+        return $response['id'];
     }
 
     public static function beginTransaction()

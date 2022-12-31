@@ -2,6 +2,7 @@
 
 namespace App\Produtos\src\Service;
 
+use App\Arquivos\src\Service\ArquivoDeProdutoService;
 use App\Core\src\Service\Service;
 use App\Produtos\src\Model\Produto;
 use Exception;
@@ -30,10 +31,11 @@ class ProdutoService extends Service {
                 throw new Exception($this->produtoModel->getErrors());
             }
 
-            $id && $id > 0 ? $this->update($id, $this->produtoModel->normalizeDataSource())  
+            $id = $id && $id > 0 ? $this->update($id, $this->produtoModel->normalizeDataSource())  
                 : $this->create($this->produtoModel->normalizeDataSource());
 
             DB::commit();
+            
             return $id;
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -44,12 +46,23 @@ class ProdutoService extends Service {
     public function deleteById($id) : bool
     {
         try {
+            DB::beginTransaction();
+            $arquivoDeProdutoService= new ArquivoDeProdutoService();
+
             if(!$id) {
                 throw new Exception("É necessário informar um id!");
             }
+            $arquivos = $arquivoDeProdutoService->getItemsByProdutoId($id);
+            foreach($arquivos as $arquivo) {
+                $arquivoDeProdutoService->deleteById($arquivo['id']);
+            }
 
-            return $this->delete($id);
+            $result = $this->delete($id);
+            DB::commit();
+
+            return $result;
         } catch (\Exception $exception) {
+            DB::rollBack();
             throw $exception;
         }     
     }

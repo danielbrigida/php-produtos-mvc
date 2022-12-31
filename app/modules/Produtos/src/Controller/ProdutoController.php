@@ -4,6 +4,7 @@ namespace App\Produtos\src\Controller;
 
 use App\Core\src\Controller\Controller;
 use App\Produtos\src\Service\ProdutoService;
+use App\Arquivos\src\Service\ArquivoDeProdutoService;
 
 class ProdutoController extends Controller {
 
@@ -34,18 +35,21 @@ class ProdutoController extends Controller {
     public function save()
     {
         try {
+            $arquivoDeProdutoService = new ArquivoDeProdutoService();
             $params = $this->getParams();
             $form = $this->getForm();
 
             $id = $params['id'] ?? null;
            
             if($this->isItPost()) {
-                $this->produtoService->save($form);
-                $this->redirect("/produtos?success=1");
+                $id = $this->produtoService->save($form);
+                $this->redirect("/produtos/save?id={$id}&success=1");
             }
 
             return  $this->view('Produtos\view\produto\save', [
                 'produto' => $id > 0 ? $this->produtoService->getItemById($id) : [],
+                'params'=> $params,
+                'arquivos'=> $id > 0 ? $arquivoDeProdutoService->getItemsByProdutoId($id) : [],
             ]);
         } catch (\Exception $exception) {
             return  $this->view('Produtos\view\produto\save', [

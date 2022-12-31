@@ -48,4 +48,33 @@ class ArquivoDeProdutoController extends Controller {
             $this->getJsonErrors($exception->getMessage());
         }    
     }
+
+    public function delete()
+    {
+        try {
+            $params = $this->getParams();
+            $id = $params['id'] ?? null;
+            $produtoId = $params['produto_id'] ?? null;
+            $this->arquivoDeProdutoService->deleteById($id);
+
+            $this->redirect("/produtos/save?id={$produtoId}&success=1");
+        } catch (\Exception $exception) {
+             $this->redirect("/produtos/save?id={$produtoId}&error=1");
+             throw $exception;
+        }
+
+    }
+
+    public function download()
+    {
+        try {
+            $params = $this->getParams();
+            $id = $params['id'] ?? null;
+            $this->arquivoDeProdutoService->download($id);
+          
+            $this->doNotRender();
+        } catch (\Exception $exception) {
+            $this->getJsonErrors($exception->getMessage());
+        }    
+    }
 }

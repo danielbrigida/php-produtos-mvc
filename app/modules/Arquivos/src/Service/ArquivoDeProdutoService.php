@@ -23,6 +23,69 @@ class ArquivoDeProdutoService extends Service {
        $this->table = $this->arquivoDeProdutoModel->getTableName();
     }
 
+    public function getItemsByProdutoId(int $produtoId): array
+    {
+        return $this->fetchAll("SELECT id, produto_id, path_file, nome_unico, nome_original,
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at 
+            FROM {$this->table} as p
+            WHERE :produto_id=produto_id
+        ;",['produto_id' => $produtoId]);
+    }
+
+    public function getItemById(int $id): array
+    {
+        return $this->fetchOne("SELECT id, produto_id, path_file, nome_unico, nome_original,
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at 
+            FROM {$this->table} as p
+            WHERE :id=id
+        ;",['id' => $id]);
+    }
+
+    public function download(int $id)
+    {
+        try {
+            if(!$id) {
+                throw new Exception("É necessário informar o ID!");
+            }
+
+            $arquivo = $this->getItemById($id);
+            $enderecoRelativoDoArquivoCompleto = APPLICATION_PATH .$arquivo['path_file'];
+
+            if (!file_exists($enderecoRelativoDoArquivoCompleto)) {
+                throw new Exception('O arquivo não foi encontrado!');
+            }
+            
+            ob_get_clean();
+            header('Content-Description: File Transfer');
+            header('Content-type: octet/stream');
+            header('Content-disposition: attachment; filename="'. $arquivo['nome_original'] .'";');
+
+            readfile($enderecoRelativoDoArquivoCompleto);
+            exit;
+        } catch (Exception $exception) {
+            throw $exception;
+        }
+    }
+
+    public function deleteById($id)
+    {
+        try {
+            $arquivo = $this->getItemById($id);
+            if(!$id) {
+                throw new Exception("É necessário informar o id!");
+            }
+            $result = $this->delete($id);
+            
+            if ($result === true) {
+                $this->unlinkFile($arquivo['nome_unico']);
+            }
+
+            return $result;
+        } catch (Exception $exception) {
+            throw $exception;
+        }
+    }
+
     public function uploadFile(int $produtoId): bool
     {
         try {
@@ -102,5 +165,15 @@ class ArquivoDeProdutoService extends Service {
             DB::rollBack();
             throw $exception;
         }         
+    }
+
+    private function unlinkFile($fileName)
+    {
+        $enderecoRelativoDoArquivoCompleto = $this->pathOfUploadedFile . $fileName;
+        
+        if (! file_exists($enderecoRelativoDoArquivoCompleto)) {
+            throw new Exception('O arquivo não foi encontrado!');
+        }
+        return unlink($enderecoRelativoDoArquivoCompleto);
     }
 }

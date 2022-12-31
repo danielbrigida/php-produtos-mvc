@@ -24,7 +24,9 @@ abstract class Service {
             $data['updated_at'] = date('Y-m-d H:i:s');
         }  
 
-        return DB::update($this->table, $data, ['id' => $id]);
+        DB::update($this->table, $data, ['id' => $id]);
+
+        return $id;
     }
 
     protected function fetchAll(string $select, array $bind = []): array

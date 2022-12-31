@@ -7,12 +7,12 @@ use App\Core\src\Model\Model;
 class ArquivoDeProduto extends Model {
     protected $table = 'arquivos_de_produtos';
 
-    protected $id = "id";
-    protected $produto_id = "produto_id";
-    protected $path_file = "path_file";
-    protected $nome_unico = "nome_unico";
-    protected $nome_original = "nome_original";
-    protected $hash = "hash";
+    protected $id;
+    protected $produto_id;
+    protected $path_file;
+    protected $nome_unico;
+    protected $nome_original;
+    protected $hash;
 
     public function setId(int $id): void  
     {
@@ -26,6 +26,10 @@ class ArquivoDeProduto extends Model {
 
     public function setProdutoId(int $produto_id): void  
     {
+        if(!$produto_id) {
+            $this->errors['Produto'] = parent::getMessageRequired();
+        }
+
         $this->produto_id = $produto_id;
     }
 

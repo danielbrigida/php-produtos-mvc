@@ -25,6 +25,26 @@ switch ($request[0]) {
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
     break;
+
+    case '/arquivos-de-produtos/delete' :
+        $render = new ArquivoDeProdutoController();
+        [
+            'layout' => $layout,
+            'data' => $data
+        ] = $render->delete();
+
+        require_once __DIR__ . Layout::MAIN_LAYOUT;
+    break;
+
+    case '/arquivos-de-produtos/download' :
+        $render = new ArquivoDeProdutoController();
+        [
+            'layout' => $layout,
+            'data' => $data
+        ] = $render->download();
+
+        require_once __DIR__ . Layout::MAIN_LAYOUT;
+    break;
     default:
        
     break;  
