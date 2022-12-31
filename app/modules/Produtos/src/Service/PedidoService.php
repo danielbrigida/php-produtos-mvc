@@ -2,20 +2,19 @@
 
 namespace App\Produtos\src\Service;
 
-use App\Arquivos\src\Service\ArquivoDeProdutoService;
 use App\Core\src\Service\Service;
-use App\Produtos\src\Model\Produto;
+use App\Produtos\src\Model\Pedido;
 use Exception;
 use Database\DB;
 
-class ProdutoService extends Service {
+class PedidoService extends Service {
 
-    private $produtoModel;
+    private $pedidoModel;
 
     public function __construct()
     {
-       $this->produtoModel =  new Produto();
-       $this->table = $this->produtoModel->getTableName();
+       $this->pedidoModel =  new Pedido();
+       $this->table = $this->pedidoModel->getTableName();
     }
     
     public function save(array $data = [])
@@ -23,16 +22,16 @@ class ProdutoService extends Service {
         try {
             DB::beginTransaction();
             $id = $data['id'] ?? null;
-            $this->produtoModel->setDescricao($data['descricao'] ?? null);
-            $this->produtoModel->setValor($data['valor'] ?? null);
-            $this->produtoModel->setEstoque($data['estoque'] ?? null);
+            $this->pedidoModel->setDescricaoPedido($data['descricao_pedido'] ?? null);
+            $this->pedidoModel->setNomeComprador($data['nome_comprador'] ?? null);
+            $this->pedidoModel->setCpfComprador($data['cpf_comprador'] ?? null);
 
-            if($this->produtoModel->getErrors()) {
-                throw new Exception($this->produtoModel->getErrors());
+            if($this->pedidoModel->getErrors()) {
+                throw new Exception($this->pedidoModel->getErrors());
             }
 
-            $id = $id && $id > 0 ? $this->update($id, $this->produtoModel->normalizeDataSource())  
-                : $this->create($this->produtoModel->normalizeDataSource());
+            $id = $id && $id > 0 ? $this->update($id, $this->pedidoModel->normalizeDataSource())  
+                : $this->create($this->pedidoModel->normalizeDataSource());
 
             DB::commit();
             
@@ -47,14 +46,9 @@ class ProdutoService extends Service {
     {
         try {
             DB::beginTransaction();
-            $arquivoDeProdutoService= new ArquivoDeProdutoService();
 
             if(!$id) {
                 throw new Exception("É necessário informar um id!");
-            }
-            $arquivos = $arquivoDeProdutoService->getItemsByProdutoId($id);
-            foreach($arquivos as $arquivo) {
-                $arquivoDeProdutoService->deleteById($arquivo['id']);
             }
 
             $result = $this->delete($id);
@@ -67,22 +61,15 @@ class ProdutoService extends Service {
         }     
     }
 
-    public function getAll($data = []): array
-    {
-        return $this->fetchAll("
-            SELECT p.id, p.descricao, p.estoque, p.valor FROM produtos as p
-            ORDER BY p.descricao ASC
-        ;");
-    }
 
     public function paginate(array $params = [], int $page): array
     {
         return $this->fetchAll("
-            SELECT p.id, p.descricao, p.estoque, FORMAT(p.valor, 2, 'de_DE') as valor ,
+            SELECT p.id, p.descricao_pedido, p.nome_comprador, p.cpf_comprador, 
             DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at 
-            FROM produtos as p
+            FROM {$this->table} as p
             {$this->getWhereClause($params)}
-            ORDER BY p.descricao ASC
+            ORDER BY p.created_at DESC
             LIMIT {$this->getLimit()}
             OFFSET {$this->getOffset($page)}
         ;");
@@ -96,9 +83,9 @@ class ProdutoService extends Service {
     public function getTotalItems(array $params = []): int
     {
         $data = $this->fetchOne("
-            SELECT count(*) as count FROM produtos as p
+            SELECT count(*) as count FROM {$this->table} as p
             {$this->getWhereClause($params)}
-            ORDER BY p.descricao ASC
+            ORDER BY p.created_at DESC
         ;");
 
         return $data['count'];
@@ -106,7 +93,7 @@ class ProdutoService extends Service {
 
     public function getItemById(int $id): array
     {
-        return $this->fetchOne("SELECT p.id, p.descricao, p.estoque, p.valor,  FORMAT(p.valor, 2, 'de_DE') as valor_formatado FROM produtos as p
+        return $this->fetchOne("SELECT p.id, p.descricao_pedido, p.nome_comprador, p.cpf_comprador FROM {$this->table} as p
             WHERE :id=id
         ;",['id' => $id]);
     }
@@ -114,14 +101,14 @@ class ProdutoService extends Service {
     private function getWhereClause(array $params = [])
     {
         $id = $params['id'] ?? null;
-        $descricao = $params['descricao'] ?? null;
+        $descricao = $params['descricao_pedido'] ?? null;
 
         $where = "";
         if($id) {
             $where = $this->addWhere($where,  "p.id = {$id}");
         }
         if($descricao) {
-            $where = $this->addWhere($where,  "p.descricao LIKE '%{$descricao}%'");
+            $where = $this->addWhere($where,  "p.descricao_pedido LIKE '%{$descricao}%'");
         }
 
         return $where;

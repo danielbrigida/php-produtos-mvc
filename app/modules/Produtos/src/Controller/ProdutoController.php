@@ -55,6 +55,7 @@ class ProdutoController extends Controller {
             return  $this->view('Produtos\view\produto\save', [
                 'produto' => $form,
                 'error' => $exception->getMessage(),
+                'arquivos'=> $id > 0 ? $arquivoDeProdutoService->getItemsByProdutoId($id) : [],
             ]);
             throw $exception;
         }    

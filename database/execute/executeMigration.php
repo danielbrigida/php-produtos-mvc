@@ -10,3 +10,6 @@ echo "Migration Create Produto Executado!\n";
 DB::query(file_get_contents("../migrations/ArquivosDeProduto.sql"));
 echo "Migration Create Arquivos de Produto Executado!\n";
 
+DB::query(file_get_contents("../migrations/Pedidos.sql"));
+echo "Migration Create Pedidos Executado!\n";
+
