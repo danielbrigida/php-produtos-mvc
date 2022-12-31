@@ -93,7 +93,7 @@ class ProdutoService extends Service {
 
     public function getItemById(int $id): array
     {
-        return $this->fetchOne("SELECT p.id, p.descricao, p.estoque, p.valor FROM produtos as p
+        return $this->fetchOne("SELECT p.id, p.descricao, p.estoque, p.valor,  FORMAT(p.valor, 2, 'de_DE') as valor_formatado FROM produtos as p
             WHERE :id=id
         ;",['id' => $id]);
     }

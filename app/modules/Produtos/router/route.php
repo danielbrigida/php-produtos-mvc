@@ -1,8 +1,8 @@
 <?php
 
 use App\Produtos\src\Controller\ProdutoController;
+use App\Core\constants\Layout;
 
-const MAIN_LAYOUT = '/../../Core/view/layout.phtml';
 $request = explode('?',$_SERVER['REQUEST_URI']);
 
 switch ($request[0]) {
@@ -12,6 +12,8 @@ switch ($request[0]) {
             'layout' => $layout,
             'data' => $data
         ] = $render->index();
+
+        require_once __DIR__ . Layout::MAIN_LAYOUT;
      break;
      case '/produtos/save' :
         $render = new ProdutoController();
@@ -19,25 +21,30 @@ switch ($request[0]) {
             'layout' => $layout,
             'data' => $data
         ] = $render->save();
-     break;
+
+        require_once __DIR__ .Layout::MAIN_LAYOUT;
+    break;
      case '/produtos/delete' :
         $render = new ProdutoController();
         [
             'layout' => $layout,
             'data' => $data
         ] = $render->delete();
-     break;
+
+        require_once __DIR__ . Layout::MAIN_LAYOUT;
+    break;
     case '/' :
         $layout = null;
         $data = [];
-        break;
+
+        require_once __DIR__ . Layout::MAIN_LAYOUT;
+    break;
     default:
-        $layout = null;
-        $data = [];
+       
     break;  
 }
 
-require_once __DIR__ .MAIN_LAYOUT;
+
 
 
 

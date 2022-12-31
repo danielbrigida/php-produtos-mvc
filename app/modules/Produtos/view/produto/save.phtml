@@ -6,9 +6,8 @@
 <section class="content">
    <div class="box box-success">
       <div class="box-header with-border">
-         <h3 class="box-title"><i class="glyphicon glyphicon-edit ocultar_na_view"></i> Cadastrar Produto</h3>
+         <h3 class="box-title"><i class="glyphicon glyphicon-edit"></i> Cadastrar Produto</h3>
       </div>
-     
       <form method="post" enctype="multipart/form-data" id="produto-save" action="/produtos/save" role="form">
          <input type="hidden" name="id" id="id"  value="<?= $data['produto']['id'] ?? ""; ?>">
          <div class="box-body">
@@ -38,6 +37,19 @@
          </div>
       </form>
    </div>
+
+   <?php if(isset($data['produto']['id']) && $data['produto']['id']) { ?>
+      <div class="box box-warning">
+         <div class="box-header with-border">
+            <h3 class="box-title"><i class="fa fa-camera"></i> Fotos do Produto</h3>
+         </div>
+         <div class="box-body">
+            <a type="button" name="adicionar" id="adicionar" class="btn btn-primary btn-xl" style="margin-right: 5px;" href="/arquivos-de-produtos/save?id=<?= $data['produto']['id'] ?>" value="">
+               <i class="fa fa-upload" style="margin-right:5px;"> </i> Adicionar Novas Fotos
+            </a>        
+         </div>
+      </div>
+   <?php } ?>   
    <script type="text/javascript">
         $(document).ready(function () {
             $(".real").mask('00.000.000,00', {reverse: true}); 

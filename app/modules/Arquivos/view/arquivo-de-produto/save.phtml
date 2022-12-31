@@ -1,0 +1,59 @@
+<div class="box box-warning">
+   <h4 class ="box-header with-border"><i class="fa fa-cloud-upload"></i> Upload de Fotos de Produtos</h4>
+   <div class="box-body table-responsive table-margin" >
+      <table class="table table-hover table-striped table-bordered">
+         <thead>
+            <tr class="thead-font">
+                  <th> Id</th>
+                  <th> Descrição</th>
+                  <th> Valor de Venda</th>
+                  <th> Quantidade em Estoque</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr class="tbody-font">
+                  <td><span class="label label-success"><?= $data['produto']['id']; ?></span></td>
+                  <td><?= $data['produto']['descricao']; ?></td>
+                  <td><?= $data['produto']['valor_formatado']; ?></td>
+                  <td><?= $data['produto']['estoque']; ?></td>
+            </tr>
+         </tbody>
+      </table>
+   </div>   
+   
+   <div id='content' class="tab-content div-dropzone">
+      <div class="tab-pane active" id="uplod">
+         <form  action="/arquivos-de-produtos/upload?id=<?= $data['produto']['id'] ?? ""; ?>" class="dropzone " id="Dropzone" enctype="multipart/form-data"></form>
+      </div>
+   </div>
+
+   <div class="box-footer">
+      <div class="margin">
+         <a name="voltar" id="voltar" class="btn btn-primary btn-xl" style="margin-right: 5px;"  href="/produtos/save?id=<?= $data['produto']['id'] ?>" >Voltar Para o Produto</a>        
+         <a name="sair" id="sair" class="btn btn-danger btn-xl" style="margin-right: 5px;"  href="/produtos" >Sair</a>   
+      </div>
+   </div>
+</div>
+
+
+<script type="text/javascript">
+
+   $(document).ready(function () {
+
+      Dropzone.options.Dropzone = {
+         dictDefaultMessage: "<i class = 'fa fa-cloud-upload fa-4x'></i><br>Arraste seus arquivos aqui!",
+         maxFilesize: 20,
+         dictFileTooBig: 'O arquivo é muito grande ! (LIMITE: 20 MB)',
+         acceptedFiles: ".jpeg,.jpg,.png,.gif",
+
+         init: function() {
+            this.on("error", function(file,response) {
+                  var responseParse = JSON.parse(response);
+                  this.defaultOptions.error(file,responseParse['detail']); 
+            });
+         }
+      };
+
+   }); 
+</script>
+
