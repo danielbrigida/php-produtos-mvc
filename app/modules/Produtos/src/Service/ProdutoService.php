@@ -44,6 +44,10 @@ class ProdutoService extends Service {
     public function deleteById($id) : bool
     {
         try {
+            if(!$id) {
+                throw new Exception("É necessário informar um id!");
+            }
+
             return $this->delete($id);
         } catch (\Exception $exception) {
             throw $exception;
@@ -58,10 +62,56 @@ class ProdutoService extends Service {
         ;");
     }
 
+    public function paginate(array $params = [], int $page): array
+    {
+        return $this->fetchAll("
+            SELECT p.id, p.descricao, p.estoque, FORMAT(p.valor, 2, 'de_DE') as valor ,
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at 
+            FROM produtos as p
+            {$this->getWhereClause($params)}
+            ORDER BY p.descricao ASC
+            LIMIT {$this->getLimit()}
+            OFFSET {$this->getOffset($page)}
+        ;");
+    }
+
+    public function getLimit(): int
+    {
+        return $this->getDefaultLimit();
+    }
+
+    public function getTotalItems(array $params = []): int
+    {
+        $data = $this->fetchOne("
+            SELECT count(*) as count FROM produtos as p
+            {$this->getWhereClause($params)}
+            ORDER BY p.descricao ASC
+        ;");
+
+        return $data['count'];
+    }
+
     public function getItemById(int $id): array
     {
         return $this->fetchOne("SELECT p.id, p.descricao, p.estoque, p.valor FROM produtos as p
             WHERE :id=id
         ;",['id' => $id]);
     }
+
+    private function getWhereClause(array $params = [])
+    {
+        $id = $params['id'] ?? null;
+        $descricao = $params['descricao'] ?? null;
+
+        $where = "";
+        if($id) {
+            $where = $this->addWhere($where,  "p.id = {$id}");
+        }
+        if($descricao) {
+            $where = $this->addWhere($where,  "p.descricao LIKE '%{$descricao}%'");
+        }
+
+        return $where;
+    }
+
 }

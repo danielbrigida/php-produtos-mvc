@@ -38,3 +38,5 @@ $render->index();*/
 
 require __DIR__ .'\app\modules\Produtos\router\route.php';
 
+// Criar fluxo de migration
+// Adicionar mais um campo no produto

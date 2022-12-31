@@ -1,37 +1,46 @@
-$.AdminLTESidebarTweak = {};
-console.log("carregou");
-
-$.AdminLTESidebarTweak.options = {
-    EnableRemember: true,
-    NoTransitionAfterReload: false
-    //Removes the transition after page reload.
-};
-
-$(function () {
-    "use strict";
-
-    $("body").on("collapsed.pushMenu", function(){
-        if($.AdminLTESidebarTweak.options.EnableRemember){
-            var toggleState = 'opened';
-            if($("body").hasClass('sidebar-collapse')){
-                toggleState = 'closed';
+function confirmModal(message, url) {
+    bootbox.confirm({
+        title: 'Atenção!',
+        message: message,
+        buttons: {
+            'cancel': {
+                label: 'Cancelar',
+                className: 'btn-primary pull-left'
+            },
+            'confirm': {
+                label: 'Confirmar',
+                className: 'btn-danger pull-right'
             }
-            document.cookie = "toggleState="+toggleState;
-        } 
-    });
+        },
+        callback: function (confirm) {
 
-    if($.AdminLTESidebarTweak.options.EnableRemember){
-        var re = new RegExp('toggleState' + "=([^;]+)");
-        var value = re.exec(document.cookie);
-        var toggleState = (value != null) ? unescape(value[1]) : null;
-        if(toggleState == 'closed'){
-            if($.AdminLTESidebarTweak.options.NoTransitionAfterReload){
-                $("body").addClass('sidebar-collapse hold-transition').delay(100).queue(function(){
-                    $(this).removeClass('hold-transition'); 
-                });
-            }else{
-                $("body").addClass('sidebar-collapse');
+            if (confirm) {
+                location.href = url;
             }
         }
-    } 
-});
+    });
+}
+
+function confirmRedirectModal(message, urlToRedirect) {
+    bootbox.confirm({
+        closeButton: false,
+        title: 'Você será redirecionado!',
+        message: message,
+        buttons: {
+            'confirm': {
+                label: 'Não',
+                className: 'btn-primary pull-left'
+            },
+            'cancel': {
+                label: 'Sim',
+                className: 'btn-danger pull-right'
+            }
+        },
+        callback: function (confirm)
+        {
+            if (confirm === false) {
+                location.href = urlToRedirect;
+            } 
+        }
+    });
+}

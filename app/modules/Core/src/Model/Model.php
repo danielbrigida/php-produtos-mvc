@@ -7,7 +7,6 @@ abstract class Model {
     protected $table;
     protected $errors = [];
 
-    
     abstract public function normalizeDataSource(): array;
 
     public function getTableName() : string
@@ -22,7 +21,7 @@ abstract class Model {
 
     protected static function getMessageMinValue($min)
     {
-        return "O Valor do campo precisa ser maior que {$min}!";
+        return "O Valor do campo não pode ser menor que {$min}!";
     }
 
     public function getErrors(): string
@@ -30,7 +29,7 @@ abstract class Model {
         $errors = "";
 
         foreach($this->errors as $index => $value) {
-            $errors .= "{$index}: {$value} <br>";
+            $errors .= "<b>{$index}:</b> {$value} <br>";
         }
 
         return $errors;

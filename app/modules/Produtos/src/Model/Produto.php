@@ -38,9 +38,11 @@ class Produto extends Model {
 
     public function setValor($valor): void  
     {
-        if(!$valor || $valor < 0) {
-            $this->errors['Valor'] = parent::getMessageMinValue(0);
+        $valor = (float) str_replace(',','.',str_replace('.','',$valor));
+        if(!$valor || $valor < 0.01) {
+            $this->errors['Valor'] = parent::getMessageMinValue(0.01);
         }
+
         $this->valor = $valor;
     }
 
@@ -51,7 +53,7 @@ class Produto extends Model {
 
     public function setEstoque($estoque): void  
     {
-        if(!$estoque || $estoque < 0) {
+        if($estoque < 0) {
             $this->errors['Estoque'] = parent::getMessageMinValue(0);
         }
         $this->estoque = $estoque;

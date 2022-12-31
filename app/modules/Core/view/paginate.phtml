@@ -1,0 +1,19 @@
+<?php
+
+    $page = $data['params']['page'] ?? 1;
+    $total = $data['total_items'] ?? 0;
+    $limit = $data['limit'] ?? 10;
+    $totalPage = ceil($total / $limit); 
+    $request = explode('?',$_SERVER['REQUEST_URI']);
+?>            
+<div class="pull-right">
+    <div class="dataTables_paginate paging_simple_numbers" id="datatable_fixed_column_paginate">
+        <ul class="pagination pagination-sm">
+            <li class="paginate_button previous" aria-controls="datatable_fixed_column" tabindex="0" id="datatable_fixed_column_first"><a  href="<?= $request[0].'?page=1'?>">&lt;&lt; Primeira</a></li>
+            <?php for($i=1; $i <= $totalPage; $i++) { ?>
+                <li class="paginate_button <?= $i == $page ? "active": "" ?>" aria-controls="datatable_fixed_column" tabindex="0"><a href="<?= $request[0].'?page='.$i?>"><?= $i; ?></a></li>
+            <?php } ?>
+            <li class="paginate_button last" aria-controls="datatable_fixed_column" tabindex="0" id="datatable_fixed_column_last"><a  href="<?= $request[0].'?page='.$totalPage?>">Última &gt;&gt;</a></li>
+        </ul>
+    </div>
+</div>
