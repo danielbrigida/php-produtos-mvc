@@ -15,6 +15,16 @@ switch ($request[0]) {
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
     break;
+
+    case '/arquivos-de-produtos/upload' :
+        $render = new ArquivoDeProdutoController();
+        [
+            'layout' => $layout,
+            'data' => $data
+        ] = $render->upload();
+
+        require_once __DIR__ . Layout::MAIN_LAYOUT;
+    break;
     default:
        
     break;  

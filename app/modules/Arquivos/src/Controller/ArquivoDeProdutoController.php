@@ -35,4 +35,17 @@ class ArquivoDeProdutoController extends Controller {
             throw new Exception($exception->getMessage());
         }    
     }
+
+    public function upload()
+    {
+        try {
+            $params = $this->getParams();
+            $id = $params['id'] ?? null;
+            $this->arquivoDeProdutoService->uploadFile($id);
+          
+            $this->doNotRender();
+        } catch (\Exception $exception) {
+            $this->getJsonErrors($exception->getMessage());
+        }    
+    }
 }

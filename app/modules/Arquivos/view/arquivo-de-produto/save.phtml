@@ -39,7 +39,6 @@
 <script type="text/javascript">
 
    $(document).ready(function () {
-
       Dropzone.options.Dropzone = {
          dictDefaultMessage: "<i class = 'fa fa-cloud-upload fa-4x'></i><br>Arraste seus arquivos aqui!",
          maxFilesize: 20,
@@ -48,10 +47,18 @@
 
          init: function() {
             this.on("error", function(file,response) {
-                  var responseParse = JSON.parse(response);
+                  let responseParse = JSON.parse(response);
                   this.defaultOptions.error(file,responseParse['detail']); 
             });
+            this.on("success", function (file, response) {
+                  console.log('teste:',response);
+                  let responseParse = JSON.parse(response);
+                  if(responseParse.error) {
+                     this.defaultOptions.error(file,responseParse.error); 
+                  }   
+            });
          }
+        
       };
 
    }); 

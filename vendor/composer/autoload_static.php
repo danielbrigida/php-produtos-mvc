@@ -44,11 +44,22 @@ class ComposerStaticInit5dd754d84beea743eb30c2d80847a700
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'U' => 
+        array (
+            'Upload' => 
+            array (
+                0 => __DIR__ . '/..' . '/codeguy/upload/src',
+            ),
+        ),
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit5dd754d84beea743eb30c2d80847a700::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit5dd754d84beea743eb30c2d80847a700::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5dd754d84beea743eb30c2d80847a700::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }
