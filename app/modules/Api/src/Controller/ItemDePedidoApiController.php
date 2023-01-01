@@ -16,11 +16,28 @@ class ItemDePedidoApiController extends ApiController
 
     public function create()
     {
-
+        try {
+            $params = $this->getPost();
+            $this->jsonResponse([
+                'id' =>  $this->itemDePedidoService->createItem($params)
+            ]);
+        } catch (\Exception $exception) {
+           $this->jsonError($exception->getMessage());
+        } 
     }
 
     public function update()
     {
+        try {
+            $data = $this->getPost();
+            $params = $this->getParams();
+
+            $this->jsonResponse([
+                'id' =>  $this->itemDePedidoService->updateItem($data,$params['id'])
+            ]);
+        } catch (\Exception $exception) {
+           $this->jsonError($exception->getMessage());
+        } 
 
     }
 
@@ -34,11 +51,17 @@ class ItemDePedidoApiController extends ApiController
         } catch (\Exception $exception) {
            $this->jsonError($exception->getMessage());
         }    
-
     }
 
     public function delete()
     {
-        echo "delete"; die;
+        try {
+            $params = $this->getParams();
+            $id = $params['id'] ?? null;
+           
+            $this->jsonResponse(['success' =>  $this->itemDePedidoService->deleteById($id)]);
+        } catch (\Exception $exception) {
+           $this->jsonError($exception->getMessage());
+        }   
     }
 }

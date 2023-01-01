@@ -51,9 +51,12 @@ class ItemDePedido extends Model {
         return $this->pedido_id;
     }
 
-    public function setValor($valor): void  
+    public function setValor($valor, $formatValue = false): void  
     {
-        $valor = (float) str_replace(',','.',str_replace('.','',$valor));
+        if($formatValue) {
+            $valor = (float) str_replace(',','.',str_replace('.','',$valor));
+        }
+
         if(!$valor || $valor < 0.01) {
             $this->errors['Valor'] = parent::getMessageMinValue(0.01);
         }
@@ -68,8 +71,8 @@ class ItemDePedido extends Model {
 
     public function setQuantidade($quantidade): void  
     {
-        if($quantidade < 0) {
-            $this->errors['Estoque'] = parent::getMessageMinValue(0);
+        if($quantidade < 1) {
+            $this->errors['Quantidade'] = parent::getMessageMinValue(1);
         }
         $this->quantidade = $quantidade;
     }
@@ -79,8 +82,15 @@ class ItemDePedido extends Model {
         return $this->quantidade;
     }
 
-    public function normalizeDataSource(): array
+    public function normalizeDataSource($update = false): array
     {
+        if($update) {
+            return [
+                'produto_id' => $this->produto_id,
+                'pedido_id' => $this->pedido_id,
+                'quantidade' => $this->quantidade,
+            ];
+        }
         return [
             'produto_id' => $this->produto_id,
             'pedido_id' => $this->pedido_id,
@@ -88,4 +98,5 @@ class ItemDePedido extends Model {
             'quantidade' => $this->quantidade,
         ];
     }
+
 }

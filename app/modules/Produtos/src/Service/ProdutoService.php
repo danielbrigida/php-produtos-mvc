@@ -117,7 +117,7 @@ class ProdutoService extends Service {
             $data = $this->getItemById($id);
 
             $this->produtoModel->setDescricao($data['descricao'] ?? null);
-            $this->produtoModel->setValor($data['valor'] ?? null);
+            $this->produtoModel->setValor(($data['valor'] ?? null), false);
             $this->produtoModel->setEstoque($estoque ?? null);
 
             if($this->produtoModel->getErrors()) {

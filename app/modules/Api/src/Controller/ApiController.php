@@ -41,6 +41,10 @@ abstract class ApiController extends Controller
         die();
     }
 
+    public function getPost() {
+        return json_decode(file_get_contents("php://input"), true);
+    }
+
     protected abstract function index();
     protected abstract function update();
     protected abstract function delete();

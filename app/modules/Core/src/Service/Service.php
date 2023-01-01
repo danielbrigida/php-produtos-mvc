@@ -3,6 +3,7 @@
 namespace  App\Core\src\Service;
 
 use Database\DB;
+use Exception;
 
 abstract class Service { 
 
@@ -36,7 +37,13 @@ abstract class Service {
 
     protected function fetchOne(string $select, array $bind = []): array 
     {
-        return DB::selectOne($select, $bind);
+        $item =  DB::selectOne($select, $bind);
+        
+        if(!$item) {
+            throw new Exception("Item não encontrado!");
+        }
+        
+        return $item;
     }
 
     protected function delete(int $id): bool

@@ -36,9 +36,12 @@ class Produto extends Model {
         return $this->descricao;
     }
 
-    public function setValor($valor): void  
+    public function setValor($valor, $formatValue = true): void  
     {
-        $valor = (float) str_replace(',','.',str_replace('.','',$valor));
+        if($formatValue) {
+            $valor = (float) str_replace(',','.',str_replace('.','',$valor));
+        }
+
         if(!$valor || $valor < 0.01) {
             $this->errors['Valor'] = parent::getMessageMinValue(0.01);
         }
