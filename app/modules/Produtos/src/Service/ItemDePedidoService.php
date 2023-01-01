@@ -26,6 +26,7 @@ class ItemDePedidoService extends Service {
             $produtoId = $data['produto_id'] ?? 0; 
             $produto = $produtoService->getItemById($produtoId);
 
+          
             $this->itemDePedidoModel->setProdutoId($produtoId);
             $this->itemDePedidoModel->setPedidoId($data['pedido_id'] ?? null);
             $this->itemDePedidoModel->setValor($produto['valor'] ?? null);
@@ -114,13 +115,39 @@ class ItemDePedidoService extends Service {
 
     public function getItemById(int $id): array
     {
-        return $this->fetchOne("SELECT i.id, i.produto_id, i.pedido_id, i.valor, i.quantidade,
+        $pedido = $this->fetchOne("SELECT i.id, i.produto_id, i.pedido_id, i.valor, i.quantidade,
+            FORMAT(p.valor, 2, 'de_DE') as valor_formatado,
             p.descricao as 'nome_produto', p.estoque as 'estoque_produto' 
             FROM {$this->table} as i
             INNER JOIN produtos as p
             ON p.id = i.produto_id
             WHERE :id=i.id
         ;",['id' => $id]);
+
+        $pedido['valor_total_pedido'] = $this->getValorTotalDoPedido($pedido['pedido_id']);    
+        return $pedido;
+    }
+
+
+    public function getItemsByPedidoId(int $pedidoId): array
+    {
+        return $this->fetchAll("SELECT i.id, i.produto_id, i.pedido_id, i.valor, i.quantidade,
+            FORMAT(p.valor, 2, 'de_DE') as valor_formatado,
+            p.descricao as 'nome_produto', p.estoque as 'estoque_produto' 
+            FROM {$this->table} as i
+            INNER JOIN produtos as p
+            ON p.id = i.produto_id
+            WHERE :pedido_id=i.pedido_id
+            ORDER BY i.id desc
+        ;",['pedido_id' => $pedidoId]);
+    }
+
+    public function getValorTotalDoPedido($pedidoId)
+    {
+        $pedido =  $this->fetchOne("SELECT FORMAT(SUM(i.quantidade * i.valor), 2, 'de_DE') as valor_total_pedido 
+            from {$this->table} as i
+            WHERE pedido_id = {$pedidoId};");
+        return $pedido['valor_total_pedido'] ?? 0;   
     }
 
     private function atualizarEstoqueNaExclusao(int $id): bool

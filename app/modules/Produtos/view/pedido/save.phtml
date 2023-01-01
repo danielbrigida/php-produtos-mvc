@@ -16,6 +16,7 @@
       <form method="post" enctype="multipart/form-data" id="pedido-save" action="/pedidos/save" role="form">
          <input type="hidden" name="id" id="id"  value="<?= $data['pedido']['id'] ?? ""; ?>">
          <div class="box-body">
+             
             <div class="row">
                 <div class="form-group col-sm-8">
                     <label>Descrição<span style="color: red;"> *</span></label>
@@ -35,18 +36,276 @@
          </div>   
          <div class="box-footer">
             <div class="margin">
-               <button type="submit" name="submit" id="submit" class="btn btn-success" style="margin-right: 5px;" value="Salvar">Salvar</button>
+            <?php if(isset($data['pedido']['id']) && $data['pedido']['id']) { ?>
+               <button type="submit" name="submit" id="submit" class="btn btn-success" style="margin-right: 5px;" value="Salvar">Salvar</button>  
+            <?php } else { ?>
+               <button type="submit" name="submit" id="submit" class="btn btn-primary" style="margin-right: 5px;" value="Salvar">Salvar e Continuar</button>
+            <?php } ?>   
                <button type="button" name="cancel" id="cancel" class="btn btn-danger btn-xl" style="margin-right: 5px;" onclick="confirmRedirectModal('Deseja realmente sair? ', '/pedidos'); return false;" value="">Sair</button>        
             </div>
          </div>
       </form>
    </div>
 
+   <?php if(isset($data['pedido']['id']) && $data['pedido']['id']) { ?>
+      <div class="box box-danger">
+         <div class="box-header with-border">
+            <h3 class="box-title"><i class="fa fa-chart"></i> Itens do Pedido</h3>
+         </div>
+         <div class="box-body">
+            <div id="mensagem-de-espera" class="text-center" style="display: none; height: 50px;" >
+               <i class="fa fa-refresh fa-spin"></i> Por favor, aguarde o processamento da sua solicitação.
+            </div>
+            <div id="mensagem-de-sucesso" class="alert alert-success alert-dismissable fade in text-center" style="display: none; height: 50px;" ></div>
+            <div id="mensagem-de-erro" class="alert alert-danger alert-dismissable fade in text-center" style="display: none;" ></div>
+            <div id="mensagem-de-info"  class="fade in text-center  bg-light-blue-active   alert alert" color:001F3F  style="display: none;" ></div>
+            
+            <div class="row">
+                <div class="form-group col-sm-5">
+                    <label>Produto<span style="color: red;"> *</span></label>
+                    <select  name="produto_id" id="produto_id" placeholder="Produto" class="form-control select2_allow_clear">
+                        <option value=""></option>
+                        <?php foreach($data['produtos'] as $p) { ?>
+                           <option value="<?= $p['id']; ?>"><?= $p['id'].'. '.$p['descricao'].' - R$'.$p['valor'] ?></option>
+                        <?php } ?>
+                     </select>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label>Quantidade<span style="color: red;"> *</span></label>
+                    <input type="number" name="quantidade" id="quantidade" placeholder="Quantidade" class="form-control"  value="">
+                </div>
+               <div class="form-group col-sm-2">    
+                  <button class="btn btn-primary" style="margin-top: 25px;" id="adicionar_ao_pedido" href="#" onclick="salvarItemPedido(); return false;">
+                     Adicionar ao Pedido                              
+                  </button>
+               </div>
+            </div>
+            
+            <div class="box-body table-responsive" style="margin-top:20px;">
+               <table class="table table-hover table-striped table-bordered">
+                  <thead>
+                     <tr class="thead-font">
+                           <th> Ações</th>
+                           <th> Produto</th>
+                           <th> Quantidade</th>
+                           <th> Valor Unidade</th>
+                     </tr>
+                  </thead>
+                  <tbody id="tbody_itens_do_pedido">
+                  <?php foreach($data['itens'] as $item) { ?>    
+                     <tr class="tbody-font" id="item_pedido_<?= $item['id'] ?>">
+                        <td>
+                              <button onclick="excluirPedido(<?= $item['id'] ?>)"  class="btn btn-danger">
+                                 <i class="fa fa-trash"></i>
+                              </button>
+                        </td>
+                           <td><?= $item['nome_produto']; ?></td>
+                           <td><?= $item['quantidade']?></td>
+                           <td><?= $item['valor_formatado']?></td>
+                     </tr>
+                  <?php } ?>    
+                  </tbody>
+               </table>  
+            </div>  
+            <div class="row" style="margin-top:5px;">
+               <div class="form-group col-sm-3">
+                  <label>Valor Total do pedido:</label>
+                  <input name="valor_total_pedido" id="valor_total_pedido" value="<?= $data['valor_total_pedido'];?>" readonly class="form-control" />
+               </div>   
+            </div> 
+         </div>
+      </div>
+   <?php } ?>  
+
   
    <script type="text/javascript">
       $(document).ready(function () {
          $(".cpf").mask('000.000.000-00', {reverse: true}); 
+         $(".select2_allow_clear").select2({
+            language: {
+                  noResults: function (term) {
+                     return "Não foi encontrado nenhum registro";
+                  }
+            },
+            placeholder: 'Escolha uma opção',
+            allowClear: true
+         });
       });
+
+      function salvarItemPedido()
+      {
+         let url = '/api/itens-pedidos';
+         let type = 'POST';
+         
+         if(osDadosDeCadastroSaoValidos() === false) {
+            return false;
+         }
+         
+         $.ajax({
+            type: type,
+            url: url,
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+               pedido_id: '<?= $data['pedido']['id'] ?? 0; ?>',
+               produto_id: $("#produto_id").val(),
+               quantidade: $("#quantidade").val(),              
+            }),
+            beforeSend: function(){
+               beforeSend();
+            },
+            success: function (retorno) {
+               sucessRotine();
+               let pedido = retorno;
+               if (pedido) {
+                  $('#tbody_itens_do_pedido').prepend(criarLinhaDePedidoAdicionado(pedido));
+                  $("#valor_total_pedido").val(pedido.valor_total_pedido);
+                  $("#mensagem-de-info").hide();   
+                  $("#mensagem-de-sucesso").append('Item adicionado com sucesso!').show('slow');
+               } 
+               atualizaSelectDeProdutos();
+            },
+            error: function (error) {
+               getErroJson(error);
+            }
+         });
+      } 
+
+      function criarLinhaDePedidoAdicionado(pedido)
+      {
+         return `<tr class="tbody-font" id="item_pedido_${pedido.id}">
+               <td>
+                  <button onclick="excluirPedido(${pedido.id})"  class="btn btn-danger">
+                     <i class="fa fa-trash"></i>
+                  </button>
+               </td>
+               <td>${pedido.nome_produto}</td>
+               <td>${pedido.quantidade}</td>
+               <td>${pedido.valor_formatado}</td>
+         </tr>`;
+      }
       
+      function osDadosDeCadastroSaoValidos()
+      {
+         $("#mensagem-de-erro").hide().empty();     
+         $("#mensagem-de-sucesso").hide().empty();
+                  
+         if($("#produto_id").val() == '') {
+            $("#mensagem-de-erro").empty().append('Por favor, informe um produto.').show(); 
+            return false;
+         }
+
+         if($("#quantidade").val() == '') {
+            $("#mensagem-de-erro").empty().append('Por favor, informe uma quantidade.').show(); 
+            return false;
+         }
+         
+         return true;
+      }
+
+      function beforeSend()
+      {
+         $("#produto_id").attr('disabled', true);
+         $("#quantidade").attr('disabled', true);
+         $("#mensagem-de-erro").hide().empty();     
+         $("#mensagem-de-sucesso").hide().empty();
+         $("#mensagem-de-espera").hide().show('slow');
+         $("#adicionar_ao_pedido").attr('disabled', true);
+      }
+
+      function getErroJson(error)
+      {
+         $("#mensagem-de-espera").hide(); 
+         $("#produto_id").attr('disabled', false);
+         $("#quantidade").attr('disabled', false);
+         $("#adicionar_ao_pedido").attr('disabled', false);
+         $("#mensagem-de-erro").append(error.responseJSON.error).show('slow');
+      }
+
+      function sucessRotine()
+      {
+         $("#mensagem-de-espera").hide(); 
+         $("#produto_id").attr('disabled', false).val('').change();
+         $("#quantidade").attr('disabled', false).val('');
+         $("#adicionar_ao_pedido").attr('disabled', false);
+      }
+      
+      function excluirPedido(id)
+      {
+         let url            = '/api/itens-pedidos?id=' + id;
+         let pedido_excluido = 'item_pedido_' + id;
+                  
+         bootbox.confirm({
+            title: 'Atenção!',
+            message: 'Você realmente quer excluir esse item?',
+            buttons: {
+                  'cancel': {
+                     label: 'Cancelar',
+                     className: 'btn-primary pull-left'
+                  },
+                  'confirm': {
+                     label: 'Confirmar',
+                     className: 'btn-danger pull-right'
+                  }
+            },
+            callback: function (confirm) {
+               if (confirm) {
+                  $.ajax({
+                     type: 'DELETE',
+                     url: url,
+                     dataType: 'json',
+                     contentType: 'application/json',
+                     beforeSend: function(){
+                        beforeSend();
+                     },
+                     success: function (retorno) {
+                        $("#mensagem-de-sucesso").append('Item excluído com sucesso!').show('slow');
+                        $("#" + pedido_excluido).remove();
+                        $("#valor_total_pedido").val(retorno?.data?.valor_total_pedido);
+                        sucessRotine();
+                        atualizaSelectDeProdutos();
+                     },
+                     error: function (erro) {
+                        getErroJson(error);
+                     }
+                  });
+               }
+            }
+         });  
+      }
+
+      function atualizaSelectDeProdutos()
+      {
+         let url = '/api/produtos?pedido_id=' + $("#id").val();
+         let type = 'GET';
+
+         $.ajax({
+            type: type,
+            url: url,
+            dataType: 'json',
+            contentType: 'application/json',
+            beforeSend: function(){
+            },
+            success: function (retorno) {
+               let pedidos = retorno;
+               $("#produto_id")
+                  .empty()
+                  .append( new Option('', ''))
+                  .attr('disabled', false).trigger('change');
+
+               for(index in pedidos)
+               {
+                  $("#produto_id").append(new Option(pedidos[index].id, pedidos[index].id));
+
+                  console.log(pedidos[index])
+               }
+               
+            },
+            error: function (error) {
+               getErroJson(error);
+            }
+         });
+
+      }
    </script>
 </section>

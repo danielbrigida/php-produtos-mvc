@@ -4,6 +4,8 @@ namespace App\Produtos\src\Controller;
 
 use App\Core\src\Controller\Controller;
 use App\Produtos\src\Service\PedidoService;
+use App\Produtos\src\Service\ItemDePedidoService;
+use App\Produtos\src\Service\ProdutoService;
 
 class PedidoController extends Controller {
 
@@ -34,6 +36,9 @@ class PedidoController extends Controller {
     public function save()
     {
         try {
+            $itemPedidoService =  new ItemDePedidoService();
+            $produtoService =  new ProdutoService();
+
             $params = $this->getParams();
             $form = $this->getForm();
             $id = $params['id'] ?? null;
@@ -46,11 +51,17 @@ class PedidoController extends Controller {
             return  $this->view('Produtos\view\pedido\save', [
                 'pedido' => $id > 0 ? $this->pedidoService->getItemById($id) : [],
                 'params'=> $params,
+                'itens' => $id > 0 ? $itemPedidoService->getItemsByPedidoId($id) : [],
+                'produtos'=> $id > 0 ? $produtoService->getProdutosDisponiveisNoPedido($id) : [],
+                'valor_total_pedido'=> $id > 0 ? $itemPedidoService->getValorTotalDoPedido($id) : 0,
             ]);
         } catch (\Exception $exception) {
             return  $this->view('Produtos\view\pedido\save', [
                 'pedido' => $form,
                 'error' => $exception->getMessage(),
+                'itens' => $id > 0 ? $itemPedidoService->getItemsByPedidoId($id) : [],
+                'produtos'=> $id > 0 ? $produtoService->getProdutosDisponiveisNoPedido($id) : [],
+                'valor_total_pedido'=> $id > 0 ? $itemPedidoService->getValorTotalDoPedido($id) : 0,
             ]);
             throw $exception;
         }    

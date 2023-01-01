@@ -66,7 +66,8 @@ class PedidoService extends Service {
     {
         return $this->fetchAll("
             SELECT p.id, p.descricao_pedido, p.nome_comprador, p.cpf_comprador, 
-            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at 
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at, 
+            ({$this->subqueryValorTotalDoPedido()}) as valor_total_pedido
             FROM {$this->table} as p
             {$this->getWhereClause($params)}
             ORDER BY p.created_at DESC
@@ -112,5 +113,12 @@ class PedidoService extends Service {
         }
 
         return $where;
+    }
+
+    private function subqueryValorTotalDoPedido($alias = 'p')
+    {
+        return "SELECT FORMAT(SUM(ii.quantidade * ii.valor), 2, 'de_DE') as valor_total_pedido FROM itens_de_pedidos as ii
+            WHERE ii.pedido_id = {$alias}.id
+            LIMIT 1";
     }
 }

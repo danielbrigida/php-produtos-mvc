@@ -18,9 +18,8 @@ class ItemDePedidoApiController extends ApiController
     {
         try {
             $params = $this->getPost();
-            $this->jsonResponse([
-                'id' =>  $this->itemDePedidoService->createItem($params)
-            ]);
+            $id = $this->itemDePedidoService->createItem($params);
+            $this->jsonResponse($this->itemDePedidoService->getItemById($id));
         } catch (\Exception $exception) {
            $this->jsonError($exception->getMessage());
         } 
@@ -31,10 +30,9 @@ class ItemDePedidoApiController extends ApiController
         try {
             $data = $this->getPost();
             $params = $this->getParams();
+            $id = $this->itemDePedidoService->updateItem($data,$params['id']);
 
-            $this->jsonResponse([
-                'id' =>  $this->itemDePedidoService->updateItem($data,$params['id'])
-            ]);
+            $this->jsonResponse($this->itemDePedidoService->getItemById($id));
         } catch (\Exception $exception) {
            $this->jsonError($exception->getMessage());
         } 
@@ -58,8 +56,14 @@ class ItemDePedidoApiController extends ApiController
         try {
             $params = $this->getParams();
             $id = $params['id'] ?? null;
+            $pedido = $this->itemDePedidoService->getItemById($id);
            
-            $this->jsonResponse(['success' =>  $this->itemDePedidoService->deleteById($id)]);
+            $this->jsonResponse([
+                'data' =>  [
+                    'success' =>  $this->itemDePedidoService->deleteById($id),
+                    'valor_total_pedido' => $this->itemDePedidoService->getValorTotalDoPedido($pedido['pedido_id'])
+                ]    
+            ]);
         } catch (\Exception $exception) {
            $this->jsonError($exception->getMessage());
         }   

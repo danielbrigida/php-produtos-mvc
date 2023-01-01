@@ -79,7 +79,7 @@ class ProdutoService extends Service {
     {
         return $this->fetchAll("
             SELECT p.id, p.descricao, p.estoque, FORMAT(p.valor, 2, 'de_DE') as valor ,
-            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at 
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at,
             FROM {$this->table} as p
             {$this->getWhereClause($params)}
             ORDER BY p.descricao ASC
@@ -109,6 +109,24 @@ class ProdutoService extends Service {
         return $this->fetchOne("SELECT p.id, p.descricao, p.estoque, p.valor,  FORMAT(p.valor, 2, 'de_DE') as valor_formatado FROM {$this->table} as p
             WHERE :id=id
         ;", ['id' => $id]);
+    }
+
+    public function getProdutosDisponiveisNoPedido($pedidoId)
+    {
+
+        return $this->fetchAll("
+            SELECT p.id, p.descricao, p.estoque, FORMAT(p.valor, 2, 'de_DE') as valor ,
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at 
+            FROM {$this->table} as p
+            WHERE NOT EXISTS(
+                SELECT 1 FROM itens_de_pedidos AS i
+                WHERE i.produto_id= p.id
+                AND i.pedido_id = {$pedidoId}
+                LIMIT 1
+            )
+            ORDER BY p.id ASC
+        ;");
+
     }
 
     public function updateEstoque(int $id, int $estoque): bool
