@@ -35,7 +35,7 @@ abstract class ApiController extends Controller
         die();
     }
 
-    protected function jsonError(array $data, $code = 404) {
+    protected function jsonError($data,int $code = 404) {
         header("Content-Type: application/json", true, $code);
         echo json_encode(['error' => $data]);
         die();
