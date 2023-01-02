@@ -49,14 +49,17 @@
                             <th> Descrição</th>
                             <th> Nome Comprador</th>
                             <th> Valor Total</th>
-                            <th>Data do Pedido</th>
+                            <th> Data do Pedido</th>
+                            <th> Pedido Finalizado</th>
                         </tr>
                     </thead>
                     <tbody>
                     <?php foreach($data['pedidos'] as $pedido) { ?>    
                         <tr class="tbody-font">
                             <td>
-                                <a target="_blank" id="" style="margin-left: 5px;" title="Editar" href="/pedidos/save?id= <?= $pedido['id'] ?>" class="btn btn-success btn-md"><i class="glyphicon glyphicon-edit"></i></a>
+                                <?php if($pedido['pedido_finalizado'] == '0'){ ?>
+                                    <a target="_blank" id="" style="margin-left: 5px;" title="Editar" href="/pedidos/save?id= <?= $pedido['id'] ?>" class="btn btn-success btn-md"><i class="glyphicon glyphicon-edit"></i></a>
+                                <?php } ?>
                                 <a id="" style="margin-left: 5px;" title="Excluir" href="#" onclick="confirmModal('Você confirma a exclusão?', '/pedidos/delete?id=<?= $pedido['id'] ?>'); return false;" class="btn btn-danger btn-md"><i class="glyphicon glyphicon-trash"></i></a>                        
                             </td>
                             <td><span class="label label-success"><?= $pedido['id']; ?></span></td>
@@ -64,6 +67,7 @@
                             <td><?= $pedido['nome_comprador']; ?></td>
                             <td><?= $pedido['valor_total_pedido'] ?? "0,00"; ?></td>
                             <td><?= $pedido['created_at']; ?></td>
+                            <td><?= $pedido['pedido_finalizado'] ? "Sim" : "Não"; ?></td>
                         </tr>
                     <?php } ?>    
                     </tbody>

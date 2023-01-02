@@ -79,7 +79,7 @@ class ProdutoService extends Service {
     {
         return $this->fetchAll("
             SELECT p.id, p.descricao, p.estoque, FORMAT(p.valor, 2, 'de_DE') as valor ,
-            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at,
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at
             FROM {$this->table} as p
             {$this->getWhereClause($params)}
             ORDER BY p.descricao ASC

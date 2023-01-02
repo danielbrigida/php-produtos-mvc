@@ -54,12 +54,21 @@ switch ($request[0]) {
 
         require_once __DIR__ .Layout::MAIN_LAYOUT;
     break;
-     case '/pedidos/delete' :
+    case '/pedidos/delete' :
         $render = new PedidoController();
         [
             'layout' => $layout,
             'data' => $data
         ] = $render->delete();
+
+        require_once __DIR__ . Layout::MAIN_LAYOUT;
+    break;
+    case '/pedidos/finalizar' :
+        $render = new PedidoController();
+        [
+            'layout' => $layout,
+            'data' => $data
+        ] = $render->finalizar();
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
     break;

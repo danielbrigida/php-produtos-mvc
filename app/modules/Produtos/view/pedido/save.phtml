@@ -11,7 +11,7 @@
 <section class="content">
    <div class="box box-warning">
       <div class="box-header with-border">
-         <h3 class="box-title"><i class="glyphicon glyphicon-edit"></i> Salvar Pedido</h3>
+         <h3 class="box-title"><i class="glyphicon glyphicon-edit"></i> Gerar Pedido</h3>
       </div>
       <form method="post" enctype="multipart/form-data" id="pedido-save" action="/pedidos/save" role="form">
          <input type="hidden" name="id" id="id"  value="<?= $data['pedido']['id'] ?? ""; ?>">
@@ -50,7 +50,7 @@
    <?php if(isset($data['pedido']['id']) && $data['pedido']['id']) { ?>
       <div class="box box-danger">
          <div class="box-header with-border">
-            <h3 class="box-title"><i class="fa fa-chart"></i> Itens do Pedido</h3>
+            <h3 class="box-title"><i class="fa fa-list-ul"></i> Itens do Pedido</h3>
          </div>
          <div class="box-body">
             <div id="mensagem-de-espera" class="text-center" style="display: none; height: 50px;" >
@@ -61,24 +61,35 @@
             <div id="mensagem-de-info"  class="fade in text-center  bg-light-blue-active   alert alert" color:001F3F  style="display: none;" ></div>
             
             <div class="row">
-                <div class="form-group col-sm-5">
+                <div class="form-group col-sm-6">
                     <label>Produto<span style="color: red;"> *</span></label>
-                    <select  name="produto_id" id="produto_id" placeholder="Produto" class="form-control select2_allow_clear">
+                    <select  name="produto_id" id="produto_id" placeholder="Produto" class="form-control select2_allow_clear" onchange="buscarProdutoPorId()">
                         <option value=""></option>
                         <?php foreach($data['produtos'] as $p) { ?>
                            <option value="<?= $p['id']; ?>"><?= $p['id'].'. '.$p['descricao'].' - R$'.$p['valor'] ?></option>
                         <?php } ?>
                      </select>
                 </div>
-                <div class="form-group col-sm-3">
+                <div class="form-group col-sm-2">
                     <label>Quantidade<span style="color: red;"> *</span></label>
                     <input type="number" name="quantidade" id="quantidade" placeholder="Quantidade" class="form-control"  value="">
                 </div>
+               <div class="form-group col-sm-2">
+                  <label>Valor Unidade</label>
+                  <input name="valor_unidade" id="valor_unidade" value="" readonly class="form-control" />
+               </div>
+
+               <div class="form-group col-sm-2">
+                  <label>Estoque</label>
+                  <input name="estoque" id="estoque" value="" readonly class="form-control" />
+               </div>
+
                <div class="form-group col-sm-2">    
-                  <button class="btn btn-primary" style="margin-top: 25px;" id="adicionar_ao_pedido" href="#" onclick="salvarItemPedido(); return false;">
-                     Adicionar ao Pedido                              
+                  <button class="btn btn-primary" style="margin-top:5px;" id="adicionar_ao_pedido" href="#" onclick="salvarItemPedido(); return false;">
+                     <i class="fa fa-plus-circle" style="margin-right:5px;"></i>Adicionar ao Pedido                              
                   </button>
                </div>
+               
             </div>
             
             <div class="box-body table-responsive" style="margin-top:20px;">
@@ -107,17 +118,22 @@
                   </tbody>
                </table>  
             </div>  
-            <div class="row" style="margin-top:5px;">
+            <div class="row" style="margin-top:5px;margin-left:5px;">
                <div class="form-group col-sm-3">
                   <label>Valor Total do pedido:</label>
                   <input name="valor_total_pedido" id="valor_total_pedido" value="<?= $data['valor_total_pedido'];?>" readonly class="form-control" />
                </div>   
             </div> 
          </div>
+         <div class="box-footer">
+            <div class="margin">
+               <button onclick="confirmRedirectModal('Deseja confirmar o pedido? ', '/pedidos/finalizar?id=<?=  $data['pedido']['id']; ?>'); return false;" name="finalizar" id="finalizar" class="btn btn-warning btn-xl" style="margin-right: 5px;" >Finalizar Pedido</button>      
+               <button type="button" name="fechar" id="fechar" class="btn btn-danger btn-xl" style="margin-right: 5px;" onclick="confirmRedirectModal('Deseja realmente sair? ', '/pedidos'); return false;" value="">Sair</button>        
+            </div>
+         </div>
       </div>
    <?php } ?>  
 
-  
    <script type="text/javascript">
       $(document).ready(function () {
          $(".cpf").mask('000.000.000-00', {reverse: true}); 
@@ -191,12 +207,12 @@
          $("#mensagem-de-sucesso").hide().empty();
                   
          if($("#produto_id").val() == '') {
-            $("#mensagem-de-erro").empty().append('Por favor, informe um produto.').show(); 
+            $("#mensagem-de-erro").empty().append('Por favor, informe um produto.').show('slow'); 
             return false;
          }
 
          if($("#quantidade").val() == '') {
-            $("#mensagem-de-erro").empty().append('Por favor, informe uma quantidade.').show(); 
+            $("#mensagem-de-erro").empty().append('Por favor, informe uma quantidade.').show('slow'); 
             return false;
          }
          
@@ -295,17 +311,43 @@
 
                for(index in pedidos)
                {
-                  $("#produto_id").append(new Option(pedidos[index].id, pedidos[index].id));
-
-                  console.log(pedidos[index])
+                  $("#produto_id").append(
+                     new Option( 
+                        pedidos[index].id +'. ' + pedidos[index].descricao +' - R$' +pedidos[index].valor,
+                        pedidos[index].id
+                     )
+                  );
                }
-               
             },
             error: function (error) {
                getErroJson(error);
             }
          });
+      }
 
+      function buscarProdutoPorId()
+      {
+         let url = '/api/produtos?id=' + $("#produto_id").val();
+         let type = 'GET';
+
+         $.ajax({
+            type: type,
+            url: url,
+            dataType: 'json',
+            contentType: 'application/json',
+            beforeSend: function(){
+               $("#estoque").val('');
+               $("#valor_unidade").val('');
+            },
+            success: function (retorno) {
+               let produtos = retorno;
+               $("#estoque").val(retorno.estoque);
+               $("#valor_unidade").val(retorno.valor_formatado);
+            },
+            error: function (error) {
+               getErroJson(error);
+            }
+         });
       }
    </script>
 </section>

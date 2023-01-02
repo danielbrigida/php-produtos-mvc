@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
     descricao_pedido VARCHAR(255) NOT NULL,
     nome_comprador VARCHAR(255),
     cpf_comprador VARCHAR(20),
+    pedido_finalizado tinyint(1) DEFAULT 0,
     created_at DATETIME NOT NULL,
     updated_at DATETIME,
     PRIMARY KEY (id)

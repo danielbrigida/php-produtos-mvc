@@ -79,4 +79,18 @@ class PedidoController extends Controller {
             throw $exception;
         }     
     }
+
+
+    public function finalizar()
+    {
+        try {
+            $params = $this->getParams();
+            $id = $params['id'] ?? null;
+            $this->pedidoService->finalizarPedido($id);
+
+            $this->redirect('/pedidos?success=1');
+        } catch (\Exception $exception) {
+            throw $exception;
+        }     
+    }
 }

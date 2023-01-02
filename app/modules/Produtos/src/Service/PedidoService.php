@@ -66,7 +66,7 @@ class PedidoService extends Service {
     {
         return $this->fetchAll("
             SELECT p.id, p.descricao_pedido, p.nome_comprador, p.cpf_comprador, 
-            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at, 
+            DATE_FORMAT(p.created_at, '%d/%m/%Y %H:%i') AS created_at, p.pedido_finalizado,
             ({$this->subqueryValorTotalDoPedido()}) as valor_total_pedido
             FROM {$this->table} as p
             {$this->getWhereClause($params)}
@@ -97,6 +97,25 @@ class PedidoService extends Service {
         return $this->fetchOne("SELECT p.id, p.descricao_pedido, p.nome_comprador, p.cpf_comprador FROM {$this->table} as p
             WHERE :id=id
         ;",['id' => $id]);
+    }
+
+    public function finalizarPedido($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            if(!$id) {
+                throw new Exception("É necessário informar um id!");
+            }
+
+            $result = $this->update($id,['pedido_finalizado' => 1]);
+            DB::commit();
+
+            return $result;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }     
     }
 
     private function getWhereClause(array $params = [])
