@@ -70,6 +70,7 @@ class ProdutoController extends Controller {
 
             $this->redirect('/produtos?success=1');
         } catch (\Exception $exception) {
+            $this->redirect('/produtos?error='. $exception->getMessage());
             throw $exception;
         }     
     }

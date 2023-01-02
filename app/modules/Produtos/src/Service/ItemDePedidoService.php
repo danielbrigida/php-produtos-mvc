@@ -25,7 +25,6 @@ class ItemDePedidoService extends Service {
             $produtoService = new ProdutoService();
             $produtoId = $data['produto_id'] ?? 0; 
             $produto = $produtoService->getItemById($produtoId);
-
           
             $this->itemDePedidoModel->setProdutoId($produtoId);
             $this->itemDePedidoModel->setPedidoId($data['pedido_id'] ?? null);
@@ -148,6 +147,16 @@ class ItemDePedidoService extends Service {
             from {$this->table} as i
             WHERE pedido_id = {$pedidoId};");
         return $pedido['valor_total_pedido'] ?? 0;   
+    }
+
+    public function getItemByProdutoId(int $produtoId): array
+    {
+        return $this->fetchAll("SELECT i.id, i.produto_id, i.pedido_id, i.valor, i.quantidade
+            FROM {$this->table} as i
+            WHERE :produto_id=i.produto_id
+            ORDER BY i.id desc
+            LIMIT 1
+        ;",['produto_id' => $produtoId]);
     }
 
     private function atualizarEstoqueNaExclusao(int $id): bool

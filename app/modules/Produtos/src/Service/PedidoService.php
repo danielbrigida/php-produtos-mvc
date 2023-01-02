@@ -3,6 +3,7 @@
 namespace App\Produtos\src\Service;
 
 use App\Core\src\Service\Service;
+use App\Produtos\src\Service\ItemDePedidoService;
 use App\Produtos\src\Model\Pedido;
 use Exception;
 use Database\DB;
@@ -45,22 +46,19 @@ class PedidoService extends Service {
     public function deleteById($id) : bool
     {
         try {
-            DB::beginTransaction();
-
             if(!$id) {
                 throw new Exception("É necessário informar um id!");
             }
-
+           
+            $this->deletarItensDoPedido($id);
             $result = $this->delete($id);
-            DB::commit();
-
+            
             return $result;
         } catch (\Exception $exception) {
             DB::rollBack();
             throw $exception;
         }     
     }
-
 
     public function paginate(array $params = [], int $page): array
     {
@@ -99,7 +97,7 @@ class PedidoService extends Service {
         ;",['id' => $id]);
     }
 
-    public function finalizarPedido($id)
+    public function finalizarPedido($id): int
     {
         try {
             DB::beginTransaction();
@@ -122,22 +120,37 @@ class PedidoService extends Service {
     {
         $id = $params['id'] ?? null;
         $descricao = $params['descricao_pedido'] ?? null;
+        $pedidoFinalizado = $params['pedido_finalizado'] ?? null;
 
         $where = "";
         if($id) {
             $where = $this->addWhere($where,  "p.id = {$id}");
         }
+
         if($descricao) {
             $where = $this->addWhere($where,  "p.descricao_pedido LIKE '%{$descricao}%'");
+        }
+
+        if($pedidoFinalizado !== null && $pedidoFinalizado !== "") {
+            $where = $this->addWhere($where,  "p.pedido_finalizado = {$pedidoFinalizado}");
         }
 
         return $where;
     }
 
-    private function subqueryValorTotalDoPedido($alias = 'p')
+    private function subqueryValorTotalDoPedido($alias = 'p'): string
     {
         return "SELECT FORMAT(SUM(ii.quantidade * ii.valor), 2, 'de_DE') as valor_total_pedido FROM itens_de_pedidos as ii
             WHERE ii.pedido_id = {$alias}.id
             LIMIT 1";
+    }
+
+    private function deletarItensDoPedido(int $id): void
+    {
+        $itemDePedidoService = new ItemDePedidoService();
+        $itensDoPedido = $itemDePedidoService->getItemsByPedidoId($id);
+        foreach($itensDoPedido as $item) {
+            $itemDePedidoService->deleteById($item['id']);
+        }
     }
 }

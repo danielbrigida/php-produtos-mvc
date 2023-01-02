@@ -13,12 +13,20 @@
                 <div class="box-body">
                     <div class="row">
                         <div class="form-group col-sm-2">
-                            <label>ID Pedido </label>
+                            <label>ID do Pedido </label>
                             <input type="text" name="id" id="id"  class="form-control"  pattern="{0}" value="<?= $data['params']['id'] ?? ''?>">
                         </div>
                         <div class="form-group col-sm-6">
                             <label>Descrição do Pedido </label>
                             <input type="text" name="descricao_pedido" id="descricao_pedido"  class="form-control"  pattern="{0}" value="<?= $data['params']['descricao_pedido'] ?? ''?>">
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label>Status </label>
+                            <select class="form-control select2_allow_clear" id="pedido_finalizado" name="pedido_finalizado">
+                                <option value=""></option>
+                                <option value="0" <?= isset($data['params']['pedido_finalizado']) && $data['params']['pedido_finalizado'] == '0' ? "selected" :  "" ?>> Aberto</option>
+                                <option value="1" <?= isset($data['params']['pedido_finalizado']) && $data['params']['pedido_finalizado'] == '1' ? "selected" :  "" ?>> Finalizado</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -50,7 +58,7 @@
                             <th> Nome Comprador</th>
                             <th> Valor Total</th>
                             <th> Data do Pedido</th>
-                            <th> Pedido Finalizado</th>
+                            <th> Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,7 +75,7 @@
                             <td><?= $pedido['nome_comprador']; ?></td>
                             <td><?= $pedido['valor_total_pedido'] ?? "0,00"; ?></td>
                             <td><?= $pedido['created_at']; ?></td>
-                            <td><?= $pedido['pedido_finalizado'] ? "Sim" : "Não"; ?></td>
+                            <td><?= $pedido['pedido_finalizado'] ? "Finalizado" : "Aberto"; ?></td>
                         </tr>
                     <?php } ?>    
                     </tbody>

@@ -80,7 +80,6 @@ class PedidoController extends Controller {
         }     
     }
 
-
     public function finalizar()
     {
         try {

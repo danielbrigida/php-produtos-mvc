@@ -3,6 +3,7 @@
 namespace App\Produtos\src\Service;
 
 use App\Arquivos\src\Service\ArquivoDeProdutoService;
+use App\Produtos\src\Service\ItemDePedidoService;
 use App\Core\src\Service\Service;
 use App\Produtos\src\Model\Produto;
 use Exception;
@@ -47,15 +48,13 @@ class ProdutoService extends Service {
     {
         try {
             DB::beginTransaction();
-            $arquivoDeProdutoService= new ArquivoDeProdutoService();
 
             if(!$id) {
                 throw new Exception("É necessário informar um id!");
             }
-            $arquivos = $arquivoDeProdutoService->getItemsByProdutoId($id);
-            foreach($arquivos as $arquivo) {
-                $arquivoDeProdutoService->deleteById($arquivo['id']);
-            }
+
+            $this->verificarSePodeExcluirProduto($id);
+            $this->excluirArquivosDeProduto($id);
 
             $result = $this->delete($id);
             DB::commit();
@@ -67,6 +66,7 @@ class ProdutoService extends Service {
         }     
     }
 
+   
     public function getAll($data = []): array
     {
         return $this->fetchAll("
@@ -164,5 +164,25 @@ class ProdutoService extends Service {
         }
 
         return $where;
+    }
+
+    private function excluirArquivosDeProduto($id)
+    {
+        $arquivoDeProdutoService= new ArquivoDeProdutoService();
+
+        $arquivos = $arquivoDeProdutoService->getItemsByProdutoId($id);
+        foreach($arquivos as $arquivo) {
+            $arquivoDeProdutoService->deleteById($arquivo['id']);
+        }
+    }
+
+    private function verificarSePodeExcluirProduto($id)
+    {
+        $itemDePedidoService = new ItemDePedidoService();
+        $itemPedido = $itemDePedidoService->getItemByProdutoId($id);
+
+        if($itemPedido) {
+            throw new Exception("Não é possível excluir o produto, pois o produto está sendo utilizado em um pedido!");
+        }
     }
 }
