@@ -26,7 +26,6 @@ switch ($request[0]) {
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
      break;
-   
     default:
        
     break;  

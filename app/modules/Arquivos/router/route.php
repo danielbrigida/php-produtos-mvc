@@ -15,7 +15,6 @@ switch ($request[0]) {
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
     break;
-
     case '/arquivos-de-produtos/upload' :
         $render = new ArquivoDeProdutoController();
         [
@@ -25,7 +24,6 @@ switch ($request[0]) {
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
     break;
-
     case '/arquivos-de-produtos/delete' :
         $render = new ArquivoDeProdutoController();
         [
@@ -35,7 +33,6 @@ switch ($request[0]) {
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
     break;
-
     case '/arquivos-de-produtos/download' :
         $render = new ArquivoDeProdutoController();
         [

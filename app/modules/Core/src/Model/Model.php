@@ -11,7 +11,7 @@ abstract class Model {
 
     public function getTableName() : string
     {
-            return $this->table;
+        return $this->table;
     }
 
     protected static function getMessageRequired()
