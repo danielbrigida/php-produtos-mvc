@@ -2,7 +2,7 @@
 
 namespace App\Core\src\Controller;
 
-class Controller
+abstract class Controller
 {
     protected function view(string $view, $data = []): array
     {

@@ -26,7 +26,7 @@ switch ($request[0]) {
 
         require_once __DIR__ .Layout::MAIN_LAYOUT;
     break;
-     case '/produtos/delete' :
+    case '/produtos/delete' :
         $render = new ProdutoController();
         [
             'layout' => $layout,
@@ -44,8 +44,8 @@ switch ($request[0]) {
         ] = $render->index();
 
         require_once __DIR__ . Layout::MAIN_LAYOUT;
-     break;
-     case '/pedidos/save' :
+    break;
+    case '/pedidos/save' :
         $render = new PedidoController();
         [
             'layout' => $layout,
